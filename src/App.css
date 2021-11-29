@@ -87,16 +87,28 @@ canvas {
   height: 100%;
 }
 
-.btn-active {
+.btn-enable {
   color: #fff;
   background-color: #c5bda5;
   border-color: #c5bda5;
 }
 
-.btn-active:hover {
+.btn-enable:hover {
   color: #fff;
   background-color: #a89c78;
   border-color: #a89c78;
+}
+
+.btn-active {
+  color: #fff;
+  background-color: #ff3700;
+  border-color: #ff3700;
+}
+
+.btn-active:hover {
+  color: #fff;
+  background-color: #e53100;
+  border-color: #e53100;
 }
 
 .DrawSvgPoint {
@@ -104,7 +116,9 @@ canvas {
   width: 5px;
   height: 5px;
   background: black;
+  transform: translate(-2.5px, -2.5px);
 }
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
