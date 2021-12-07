@@ -1,27 +1,30 @@
-import '@coreui/coreui/dist/css/coreui.min.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
-import './App.css';
-
-import React from 'react'
-import { CContainer } from '@coreui/react'
-import AppSidebar from './Components/AppSidebar';
-import AppHeader from './Components/AppHeader';
-import WorkStage from './Components/WorkStage';
-
-function App() {
+import React from "react";
+import indexRoutes from "./routes/";
+import { Router, Route, Switch } from "react-router-dom";
+import { Provider } from "react-redux";
+import { configureStore } from "./redux/Store";
+import { History } from "./jwt/_helpers";
+import { PrivateRoute } from "./routes/PrivateRoutes";
+import BlankLayout from "./layouts/BlankLayout";
+const App = () => {
+  //const [currentUser, SetcurrentUser] = useState(null);
   return (
-    <div className="App">
-      <AppSidebar />
-      <div className="wrapper d-flex flex-column min-vh-100 bg-light">
-        <AppHeader />
-        <div className="body flex-grow-1 px-3">
-          <CContainer>
-            <WorkStage />
-          </CContainer>
-        </div>
-      </div>
-    </div>
+    <Provider store={configureStore()}>
+      <Router history={History}>
+        <Switch>
+          <Route exact path="/authentication/Login" component={BlankLayout} />;
+          {indexRoutes.map((prop, key) => {
+            return (
+              <PrivateRoute
+                path={prop.path}
+                key={key}
+                component={prop.component}
+              />
+            );
+          })}
+        </Switch>
+      </Router>
+    </Provider>
   );
-}
-
+};
 export default App;

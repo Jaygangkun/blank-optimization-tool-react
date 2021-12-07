@@ -1,17 +1,22 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React, { Suspense, lazy } from "react";
+import ReactDOM from "react-dom";
+import Spinner from "./views/spinner/Spinner";
+import "./assets/scss/style.scss";
+import "./data";
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
+// setup fake backend
+import { ConfigureFakeBackend } from "./jwt/_helpers";
+ConfigureFakeBackend();
+const App = lazy(
+  () =>
+    new Promise((resolve) => {
+      setTimeout(() => resolve(import("./app")), 0);
+    })
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+ReactDOM.render(
+  <Suspense fallback={<Spinner />}>
+    <App />
+  </Suspense>,
+  document.getElementById("root")
+);
