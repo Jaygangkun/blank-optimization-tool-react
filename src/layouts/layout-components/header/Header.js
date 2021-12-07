@@ -12,26 +12,12 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-  UncontrolledCarousel,
-  Progress,
-  ListGroup,
-  ListGroupItem,
-  Row,
-  Col,
-  Form,
-  FormGroup,
-  Input,
 } from "reactstrap";
-import * as data from "./Data";
 
 /*--------------------------------------------------------------------------------*/
 /* Import images which are need for the HEADER                                    */
 /*--------------------------------------------------------------------------------*/
-import logodarkicon from "../../../assets/images/logos/logo-icon.png";
-import logolighticon from "../../../assets/images/logos/logo-light-icon.png";
-import logodarktext from "../../../assets/images/logos/logo-text.png";
-import logolighttext from "../../../assets/images/logos/logo-light-text.png";
-import profilephoto from "../../../assets/images/users/1.jpg";
+import profilephoto from "../../../assets/images/user-1.jpg";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);

@@ -271,7 +271,7 @@ function WorkStage() {
             return;
         }
 
-        if(typeof svgUpload.firstElementChild.tagName == 'g') {
+        if(svgUpload.firstElementChild.tagName === 'g') {
 
         }
         else {
@@ -330,7 +330,7 @@ function WorkStage() {
             return;
         }
 
-        if(event.clientX != 0 && event.clientY != 0) {
+        if(event.clientX !== 0 && event.clientY !== 0) {
             panMove({
                 x: dragStartPoint.x - event.clientX,
                 y: dragStartPoint.y - event.clientY
@@ -428,9 +428,6 @@ function WorkStage() {
         setBtnHandActive(false);
     }
     
-
-    const [optimizeParamDlgVisible, setOptimizeParamDlgVisible] = React.useState(false);
-
     return (
         <Row>
             <Col sm="12" md="6" lg="6">
