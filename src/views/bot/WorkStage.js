@@ -1770,11 +1770,78 @@ function WorkStage() {
         
     }
 
+    const downloadSVG = () => {
+        var svgOptimize = document.getElementById('svgOptimize');
+
+        if(svgOptimize) {
+            svgOptimize.style.width = null;
+            svgOptimize.style.height = null;
+            svgOptimize.setAttribute("overflow", "visible");
+            svgOptimize.setAttribute("preserveAspectRatio", "xMinYMid meet");
+    
+            var serializer = new XMLSerializer();
+            //setting currentColor to black matters if computed styles are not used
+            var svgString = serializer.serializeToString(svgOptimize).replace(/currentColor/g, "black");
+    
+            //add namespaces
+            if (!svgString.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+                svgString = svgString.replace(/^<svg/, "<svg xmlns=\"http://www.w3.org/2000/svg\"");
+            }
+            if (!svgString.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+                svgString = svgString.replace(/^<svg/, "<svg xmlns:xlink=\"http://www.w3.org/1999/xlink\"");
+            }
+            
+            svgString = "<?xml version=\"1.0\" standalone=\"no\"?>\r\n" + svgString;
+    
+            //convert svg string to URI data scheme.
+            var url = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgString);
+    
+            var link = document.getElementById('downloadLink');
+            link.href=url;
+            link.click();
+        }
+        
+    }
+
+    const downloadJPEG = () => {
+        var svgOptimize = document.getElementById('svgOptimize');
+
+        if(svgOptimize) {
+            svgOptimize.style.width = null;
+            svgOptimize.style.height = null;
+            svgOptimize.setAttribute("overflow", "visible");
+            svgOptimize.setAttribute("preserveAspectRatio", "xMinYMid meet");
+    
+            var serializer = new XMLSerializer();
+            //setting currentColor to black matters if computed styles are not used
+            var svgString = serializer.serializeToString(svgOptimize).replace(/currentColor/g, "black");
+    
+            //add namespaces
+            if (!svgString.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)) {
+                svgString = svgString.replace(/^<svg/, "<svg xmlns=\"http://www.w3.org/2000/svg\"");
+            }
+            if (!svgString.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)) {
+                svgString = svgString.replace(/^<svg/, "<svg xmlns:xlink=\"http://www.w3.org/1999/xlink\"");
+            }
+            
+            var downloadCanvas = document.getElementById('downloadCanvas');
+            var ctx = downloadCanvas.getContext("2d");
+            window.canvg.Canvg.fromString(ctx, svgString).start();
+
+            var url = downloadCanvas.toDataURL("image/jpeg");
+    
+            var link = document.getElementById('downloadLink');
+            link.href=url;
+            link.click();
+        }
+        
+    }
+
     return (
         <Row>
             <Col sm="12" md="6" lg="6">
                 <Card>
-                    <CardTitle className="border-bottom p-3 mb-0">
+                    <CardTitle className="border-bottom p-3 mb-0">                        
                         <div className="d-flex align-items-center justify-content-between">
                             <span>Canvas</span>
                             <div className="">
@@ -1802,10 +1869,10 @@ function WorkStage() {
                                         </DropdownItem>
 
 
-                                        <DropdownItem>
+                                        <DropdownItem onClick={() => downloadSVG()}>
                                             Download
                                         </DropdownItem>
-                                        <DropdownItem>
+                                        <DropdownItem onClick={() => downloadJPEG()}>
                                             Download JPEG
                                         </DropdownItem>
                                         <DropdownItem>
@@ -1840,6 +1907,11 @@ function WorkStage() {
                     <CardBody>
                         <div className="stageContainer">
                             <div className="stageWrap" id="stageWrap">
+                                <div className="downloadDoms" style={{display: 'none'}}>
+                                    <a id="downloadLink" download />
+                                    <canvas id="downloadCanvas" />
+                                </div>
+                                
                                 <div 
                                     className="stageWrapContent" 
                                     id="stageWrapContent" 
