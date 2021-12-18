@@ -25,6 +25,7 @@
     "axios": "^0.21.1",
     "chart.js": "2.9.4",
     "chroma-js": "^2.1.1",
+    "d3": "^7.2.1",
     "feather-icons-react": "^0.4.3",
     "firebase": "^7.15.1",
     "formik": "^2.2.6",
