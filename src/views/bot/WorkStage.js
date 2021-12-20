@@ -710,6 +710,24 @@ let pathTry = null;
 
 let svgDomRect = null;
 
+const clearGlobalVars = () => {
+    svgTagAttr = {};
+    svgUpload = null;
+    svgDraw = null;
+    svgOptimize = null;
+    stageWrapContent = null;
+    
+    dragImg = null;
+    
+    svgRectViewInitial = null;
+    svgRectViewDragStart = null;
+    dragStartPoint = null;
+    
+    pathTry = null;
+    
+    svgDomRect = null;
+}
+
 const isValidNode = function () {
     return true;
 };
@@ -764,7 +782,8 @@ const processingInstructions = [
     },
 ];
 
-function UploadSvg({svgText, visible}) {
+function UploadSvg({svgText, visible, clear}) {
+
     React.useEffect(() => {
         if(svgUpload == null) {
             svgUpload = document.getElementById('svgUpload');
@@ -804,6 +823,12 @@ function UploadSvg({svgText, visible}) {
             }
         }
     });
+
+    if(clear) {
+        return (
+            <></>
+        )
+    }
     return (
         <div className="UploadSvg" style={!visible ? {display: 'none'} : {}}>
             { HtmlToReactParser.parseWithInstructions(svgText, isValidNode, processingInstructions, preprocessingInstructions) }
@@ -811,7 +836,12 @@ function UploadSvg({svgText, visible}) {
     )
 }
 
-function DrawSvg({constraints, constraintPoints, eventPoints, visible}) {
+function DrawSvg({constraints, constraintPoints, eventPoints, visible, clear}) {
+    if(clear) {
+        return (
+            <></>
+        )
+    }
     return (
         <div className="DrawSvg" style={!visible ? {display: 'none'} : {}}>
             <svg xmlns={svgTagAttr.xmlns} viewBox={svgTagAttr.viewbox} id="svgDraw">
@@ -842,8 +872,14 @@ const CASE_50_500 = '50-500';
 const CASE_500_2000 = '500-2000';
 const CASE_2000 = '2000-';
 
-function optimizeSVG({ constraints, visible} ) {
+function optimizeSVG({ constraints, visible, clear} ) {
 console.log('svgUpload:', svgUpload);
+    if(clear) {
+        return (
+            <></>
+        )
+    }
+
     if(pathTry == null) {
         return;
     }
@@ -1626,8 +1662,9 @@ function WorkStage() {
 
     const [isEdit, setIsEdit] = React.useState(false);
     const [optimized, setOptimized] = React.useState(false);
+    const [clear, setClear] = React.useState(false);
 
-    const [constraints, setContraints] = React.useState([]);
+    const [constraints, setConstraints] = React.useState([]);
     const [constraintPoints, setConstraintPoints] = React.useState([]);
     const [eventPoints, setEventPoints] = React.useState([]);
     
@@ -1729,12 +1766,13 @@ function WorkStage() {
     const [btnHandActive, setBtnHandActive] = React.useState(false);
 
     const cbOpenBtnClick = function() {
+        setClear(false)
         openFile()
     }
 
     const cbEditBtnClick = function() {
         if(isEdit) {
-            setContraints([...constraints, {points: constraintPoints}])
+            setConstraints([...constraints, {points: constraintPoints}])
             setConstraintPoints([]);
             setEventPoints([]);
 
@@ -1808,13 +1846,35 @@ function WorkStage() {
     }
     
 
-    const optimize = () => {
+    const menuClickOptimize = () => {
     
         setOptimized(true);
         
     }
 
-    const downloadSVG = () => {
+    const menuClickClear = () => {
+        setBtnEditEnable(false)
+        setBtnZoomInEnable(false)
+        setBtnZoomOutEnable(false)
+        setBtnHandEnable(false)
+        setBtnResetEnable(false)
+    
+        setBtnEditActive(false)
+        setBtnHandActive(false)
+
+        clearGlobalVars();
+
+        setClear(true);
+
+        setSvgFile('');
+        setOptimized(false);
+
+        setConstraints([]);
+        setConstraintPoints([]);
+        setEventPoints([]);
+    }
+
+    const menuClickDownloadSVG = () => {
         var svgOptimize = document.getElementById('svgOptimize');
 
         if(svgOptimize) {
@@ -1847,7 +1907,7 @@ function WorkStage() {
         
     }
 
-    const downloadJPEG = () => {
+    const menuClickDownloadJPEG = () => {
         var svgOptimize = document.getElementById('svgOptimize');
 
         if(svgOptimize) {
@@ -1905,18 +1965,18 @@ function WorkStage() {
                                         <i className="icon-options-vertical"></i>
                                     </DropdownToggle>
                                     <DropdownMenu right className="user-dd">
-                                        <DropdownItem onClick={() => optimize()}>
+                                        <DropdownItem onClick={() => menuClickOptimize()}>
                                             Optimize
                                         </DropdownItem>
-                                        <DropdownItem>
+                                        <DropdownItem onClick={() => menuClickClear()}>
                                         Clear
                                         </DropdownItem>
 
 
-                                        <DropdownItem onClick={() => downloadSVG()}>
+                                        <DropdownItem onClick={() => menuClickDownloadSVG()}>
                                             Download
                                         </DropdownItem>
-                                        <DropdownItem onClick={() => downloadJPEG()}>
+                                        <DropdownItem onClick={() => menuClickDownloadJPEG()}>
                                             Download JPEG
                                         </DropdownItem>
                                         <DropdownItem>
@@ -1966,9 +2026,9 @@ function WorkStage() {
                                     onDragStart={(e) => stageDragStart(e)}
                                     onDragEnd={(e) => stageDragEnd(e)}
                                 >
-                                    { UploadSvg({ svgText: svgFile, visible: !optimized }) }
-                                    { DrawSvg({ constraints: constraints, constraintPoints: constraintPoints, eventPoints: eventPoints, visible: !optimized}) }
-                                    { optimizeSVG({ constraints: constraints, visible: optimized}) }
+                                    { UploadSvg({ svgText: svgFile, visible: !optimized, clear: clear }) }
+                                    { DrawSvg({ constraints: constraints, constraintPoints: constraintPoints, eventPoints: eventPoints, visible: !optimized, clear: clear}) }
+                                    { optimizeSVG({ constraints: constraints, visible: optimized, clear: clear}) }
                                 </div>
                             </div>
                         </div>
