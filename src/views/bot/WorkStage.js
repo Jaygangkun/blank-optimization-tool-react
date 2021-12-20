@@ -1653,6 +1653,8 @@ function WorkStage() {
             setBtnZoomOutEnable(true);
             setBtnHandEnable(true);
             setBtnResetEnable(true);
+
+            setMenuItemDisabledClear(false);
         }
     }
 
@@ -1672,6 +1674,19 @@ function WorkStage() {
     const [btnHandActive, setBtnHandActive] = React.useState(false);
 
     // status for menu items
+    const [menuItemDisabledOptimize, setMenuItemDisabledOptimize] = React.useState(true);
+    const [menuItemDisabledClear, setMenuItemDisabledClear] = React.useState(true);
+    const [menuItemDisabledDownload, setMenuItemDisabledDownload] = React.useState(true);
+    const [menuItemDisabledDownloadJPEG, setMenuItemDisabledDownloadJPEG] = React.useState(true);
+    const [menuItemDisabledPrint, setMenuItemDisabledPrint] = React.useState(true);
+    const [menuItemDisabledShowOptimizedBlank, setMenuItemDisabledShowOptimizedBlank] = React.useState(true);
+    const [menuItemDisabledShowAll, setMenuItemDisabledShowAll] = React.useState(true);
+    const [menuItemDisabledHideConstraints, setMenuItemDisabledHideConstraints] = React.useState(true);
+    const [menuItemDisabledShowConstraints, setMenuItemDisabledShowConstraints] = React.useState(true);
+    const [menuItemDisabledRemoveConstraints, setMenuItemDisabledRemoveConstraints] = React.useState(true);
+
+    // status for menu item clicks
+
     const [optimized, setOptimized] = React.useState(false);
     const [clear, setClear] = React.useState(false);
     const [hideConstraints, setHideConstraints] = React.useState(false);
@@ -1720,6 +1735,10 @@ function WorkStage() {
             setConstraintPoints([...constraintPoints, [svgP.x, svgP.y]]);
 
             setEventPoints([...eventPoints, {x: event.clientX - stageWrapContent.getBoundingClientRect().left, y: event.clientY - stageWrapContent.getBoundingClientRect().top}]);
+
+            setMenuItemDisabledOptimize(false);
+            setMenuItemDisabledHideConstraints(false);
+            setMenuItemDisabledRemoveConstraints(false);
         }
     }
 
@@ -1771,7 +1790,6 @@ function WorkStage() {
         }
     }
 
-    
 
     const cbOpenBtnClick = function() {
         setClear(false)
@@ -1859,9 +1877,13 @@ function WorkStage() {
     
         setOptimized(true);
         
+        setMenuItemDisabledDownload(false);
+        setMenuItemDisabledDownloadJPEG(false);
+        setMenuItemDisabledShowOptimizedBlank(false);
     }
 
     const menuClickClear = () => {
+        // reset toolbar button status
         setBtnEditEnable(false)
         setBtnZoomInEnable(false)
         setBtnZoomOutEnable(false)
@@ -1881,6 +1903,20 @@ function WorkStage() {
         setConstraints([]);
         setConstraintPoints([]);
         setEventPoints([]);
+
+
+        // reset menu item status
+        setMenuItemDisabledOptimize(true)
+        setMenuItemDisabledClear(true)
+        setMenuItemDisabledDownload(true)
+        setMenuItemDisabledDownloadJPEG(true)
+        setMenuItemDisabledPrint(true)
+        setMenuItemDisabledShowOptimizedBlank(true)
+        setMenuItemDisabledShowAll(true)
+        setMenuItemDisabledHideConstraints(true)
+        setMenuItemDisabledShowConstraints(true)
+        setMenuItemDisabledRemoveConstraints(true)
+
     }
 
     const menuClickDownloadSVG = () => {
@@ -1952,22 +1988,41 @@ function WorkStage() {
 
     const menuClickShowOptimizedBlank = () => {
         setShowOptimizedBlank(true);
+        
+        setMenuItemDisabledShowOptimizedBlank(true);
+        setMenuItemDisabledShowAll(false);
     }
 
     const menuClickShowAll = () => {
         setShowOptimizedBlank(false);
+
+        setMenuItemDisabledShowOptimizedBlank(false);
+        setMenuItemDisabledShowAll(true);
     }
 
     const menuClickHideConstraints = () => {
         setHideConstraints(true);
+
+        setMenuItemDisabledHideConstraints(true);
+        setMenuItemDisabledShowConstraints(false);
     }
      
     const menuClickShowConstraints = () => {
         setHideConstraints(false);
+
+        setMenuItemDisabledHideConstraints(false);
+        setMenuItemDisabledShowConstraints(true);
     }
 
     const menuClickRemoveConstraints = () => {
         if(constraints.length > 0) {
+            if(constraints.length == 1 ){
+                setMenuItemDisabledOptimize(true);
+                setMenuItemDisabledRemoveConstraints(true);
+                setMenuItemDisabledHideConstraints(true);
+                setMenuItemDisabledShowConstraints(true);
+            }
+
             const newConstraints = constraints.slice();
             newConstraints.splice(-1);
 
@@ -1999,38 +2054,38 @@ function WorkStage() {
                                         <i className="icon-options-vertical"></i>
                                     </DropdownToggle>
                                     <DropdownMenu right className="user-dd">
-                                        <DropdownItem onClick={() => menuClickOptimize()}>
+                                        <DropdownItem onClick={() => menuClickOptimize()} disabled={menuItemDisabledOptimize}>
                                             Optimize
                                         </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickClear()}>
-                                        Clear
+                                        <DropdownItem onClick={() => menuClickClear()} disabled={menuItemDisabledClear}>
+                                            Clear
                                         </DropdownItem>
 
 
-                                        <DropdownItem onClick={() => menuClickDownloadSVG()}>
+                                        <DropdownItem onClick={() => menuClickDownloadSVG()} disabled={menuItemDisabledDownload}>
                                             Download
                                         </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickDownloadJPEG()}>
+                                        <DropdownItem onClick={() => menuClickDownloadJPEG()} disabled={menuItemDisabledDownloadJPEG}>
                                             Download JPEG
                                         </DropdownItem>
-                                        <DropdownItem>
+                                        <DropdownItem disabled={menuItemDisabledPrint}>
                                             Print
                                         </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickShowOptimizedBlank()}>
+                                        <DropdownItem onClick={() => menuClickShowOptimizedBlank()} disabled={menuItemDisabledShowOptimizedBlank}>
                                             Show Optimized Blank
                                         </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickShowAll()}>
+                                        <DropdownItem onClick={() => menuClickShowAll()} disabled={menuItemDisabledShowAll}>
                                             Show All
                                         </DropdownItem>
 
 
-                                        <DropdownItem onClick={() => menuClickHideConstraints()}>
+                                        <DropdownItem onClick={() => menuClickHideConstraints()} disabled={menuItemDisabledHideConstraints}>
                                             Hide Constraints
                                         </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickShowConstraints()}>
+                                        <DropdownItem onClick={() => menuClickShowConstraints()} disabled={menuItemDisabledShowConstraints}>
                                             Show Constraints
                                         </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickRemoveConstraints()}>
+                                        <DropdownItem onClick={() => menuClickRemoveConstraints()} disabled={menuItemDisabledRemoveConstraints}>
                                             Remove Constraints
                                         </DropdownItem>
                                     </DropdownMenu>
