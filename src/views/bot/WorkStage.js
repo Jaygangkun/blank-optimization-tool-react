@@ -697,6 +697,7 @@ const HtmlToReactParser = new HtmlToReact.Parser();
 let svgTagAttr = {};
 let svgUpload = null;
 let svgDraw = null;
+let svgOptimize = null;
 let stageWrapContent = null;
 
 let dragImg = null;
@@ -706,6 +707,8 @@ let svgRectViewDragStart = null;
 let dragStartPoint = null;
 
 let pathTry = null;
+
+let svgDomRect = null;
 
 const isValidNode = function () {
     return true;
@@ -765,10 +768,17 @@ function UploadSvg({svgText, visible}) {
     React.useEffect(() => {
         if(svgUpload == null) {
             svgUpload = document.getElementById('svgUpload');
+            if(svgUpload) {
+                svgDomRect = svgUpload.getBoundingClientRect();
+            }            
         }
 
         if(svgDraw == null) {
             svgDraw = document.getElementById('svgDraw');
+        }   
+
+        if(svgOptimize == null) {
+            svgOptimize = document.getElementById('svgOptimize');
         }   
 
         if(stageWrapContent == null) {
@@ -1490,17 +1500,27 @@ const zoom = (direction) => {
             'viewBox',
             svgUpload.getAttribute('viewBox').split(' ')[0] + ' ' + 
             svgUpload.getAttribute('viewBox').split(' ')[1] + ' ' + 
-            (Number(svgUpload.getAttribute('viewBox').split(' ')[2]) + Number(svgUpload.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
-            (Number(svgUpload.getAttribute('viewBox').split(' ')[3]) + Number(svgUpload.getAttribute('viewBox').split(' ')[3]*0.1))
+            (parseInt(svgUpload.getAttribute('viewBox').split(' ')[2]) + parseInt(svgUpload.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
+            (parseInt(svgUpload.getAttribute('viewBox').split(' ')[3]) + parseInt(svgUpload.getAttribute('viewBox').split(' ')[3]*0.1))
         );
 
         svgDraw.setAttribute(
             'viewBox',
             svgDraw.getAttribute('viewBox').split(' ')[0] + ' ' + 
             svgDraw.getAttribute('viewBox').split(' ')[1] + ' ' + 
-            (Number(svgDraw.getAttribute('viewBox').split(' ')[2]) + Number(svgDraw.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
-            (Number(svgDraw.getAttribute('viewBox').split(' ')[3]) + Number(svgDraw.getAttribute('viewBox').split(' ')[3]*0.1))
+            (parseInt(svgDraw.getAttribute('viewBox').split(' ')[2]) + parseInt(svgDraw.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
+            (parseInt(svgDraw.getAttribute('viewBox').split(' ')[3]) + parseInt(svgDraw.getAttribute('viewBox').split(' ')[3]*0.1))
         );
+
+        if(svgOptimize) {
+            svgOptimize.setAttribute(
+                'viewBox',
+                svgOptimize.getAttribute('viewBox').split(' ')[0] + ' ' + 
+                svgOptimize.getAttribute('viewBox').split(' ')[1] + ' ' + 
+                (parseInt(svgOptimize.getAttribute('viewBox').split(' ')[2]) + parseInt(svgOptimize.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
+                (parseInt(svgOptimize.getAttribute('viewBox').split(' ')[3]) + parseInt(svgOptimize.getAttribute('viewBox').split(' ')[3]*0.1))
+            );
+        }
     }
     else if (direction === "in")
     {
@@ -1508,17 +1528,27 @@ const zoom = (direction) => {
             'viewBox',
             svgUpload.getAttribute('viewBox').split(' ')[0] + ' ' + 
             svgUpload.getAttribute('viewBox').split(' ')[1] + ' ' + 
-            (Number(svgUpload.getAttribute('viewBox').split(' ')[2]) - Number(svgUpload.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
-            (Number(svgUpload.getAttribute('viewBox').split(' ')[3]) - Number(svgUpload.getAttribute('viewBox').split(' ')[3]*0.1))
+            (parseInt(svgUpload.getAttribute('viewBox').split(' ')[2]) - parseInt(svgUpload.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
+            (parseInt(svgUpload.getAttribute('viewBox').split(' ')[3]) - parseInt(svgUpload.getAttribute('viewBox').split(' ')[3]*0.1))
         );
 
         svgDraw.setAttribute(
             'viewBox',
             svgDraw.getAttribute('viewBox').split(' ')[0] + ' ' + 
             svgDraw.getAttribute('viewBox').split(' ')[1] + ' ' + 
-            (Number(svgDraw.getAttribute('viewBox').split(' ')[2]) - Number(svgDraw.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
-            (Number(svgDraw.getAttribute('viewBox').split(' ')[3]) - Number(svgDraw.getAttribute('viewBox').split(' ')[3]*0.1))
+            (parseInt(svgDraw.getAttribute('viewBox').split(' ')[2]) - parseInt(svgDraw.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
+            (parseInt(svgDraw.getAttribute('viewBox').split(' ')[3]) - parseInt(svgDraw.getAttribute('viewBox').split(' ')[3]*0.1))
         );
+
+        if(svgOptimize) {
+            svgOptimize.setAttribute(
+                'viewBox',
+                svgOptimize.getAttribute('viewBox').split(' ')[0] + ' ' + 
+                svgOptimize.getAttribute('viewBox').split(' ')[1] + ' ' + 
+                (parseInt(svgOptimize.getAttribute('viewBox').split(' ')[2]) - parseInt(svgOptimize.getAttribute('viewBox').split(' ')[2]*0.1)) + ' ' + 
+                (parseInt(svgOptimize.getAttribute('viewBox').split(' ')[3]) - parseInt(svgOptimize.getAttribute('viewBox').split(' ')[3]*0.1))
+            ); 
+        }
     }
 }
 
@@ -1532,7 +1562,10 @@ const panMove = (offset) => {
     }
 
     // convert view offset to svg offset
-    const svgDomRect = svgUpload.getBoundingClientRect();
+    if(svgDomRect == null) {
+        return;
+    }
+
     const viewBoxOffset = {
         x: offset.x * svgRectViewDragStart.width / svgDomRect.width,
         y: offset.y * svgRectViewDragStart.height / svgDomRect.height
@@ -1553,6 +1586,17 @@ const panMove = (offset) => {
         svgRectViewDragStart.width + ' ' + 
         svgRectViewDragStart.height
     );
+
+    if(svgOptimize) {
+        svgOptimize.setAttribute(
+            'viewBox',
+            (parseInt(svgRectViewDragStart.x) + parseInt(viewBoxOffset.x)) + ' ' + 
+            (parseInt(svgRectViewDragStart.y) + parseInt(viewBoxOffset.y)) + ' ' + 
+            svgRectViewDragStart.width + ' ' + 
+            svgRectViewDragStart.height
+        );
+    }
+    
 }
 
 
