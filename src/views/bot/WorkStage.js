@@ -836,14 +836,15 @@ function UploadSvg({svgText, visible, clear}) {
     )
 }
 
-function DrawSvg({constraints, constraintPoints, eventPoints, visible, clear}) {
+function DrawSvg({constraints, constraintPoints, eventPoints, visible, clear, hideConstraints}) {
     if(clear) {
         return (
             <></>
         )
     }
+
     return (
-        <div className="DrawSvg" style={!visible ? {display: 'none'} : {}}>
+        <div className="DrawSvg" style={!visible || hideConstraints ? {display: 'none'} : {}}>
             <svg xmlns={svgTagAttr.xmlns} viewBox={svgTagAttr.viewbox} id="svgDraw">
                 {
                     constraints?.map((constraint, index) => {
@@ -1660,10 +1661,25 @@ function WorkStage() {
         fileSelector.click();
     }
 
-    const [isEdit, setIsEdit] = React.useState(false);
+    // status for toolbar buttons
+    const [btnEditEnable, setBtnEditEnable] = React.useState(false);
+    const [btnZoomInEnable, setBtnZoomInEnable] = React.useState(false);
+    const [btnZoomOutEnable, setBtnZoomOutEnable] = React.useState(false);
+    const [btnHandEnable, setBtnHandEnable] = React.useState(false);
+    const [btnResetEnable, setBtnResetEnable] = React.useState(false);
+
+    const [btnEditActive, setBtnEditActive] = React.useState(false);
+    const [btnHandActive, setBtnHandActive] = React.useState(false);
+
+    // status for menu items
     const [optimized, setOptimized] = React.useState(false);
     const [clear, setClear] = React.useState(false);
+    const [hideConstraints, setHideConstraints] = React.useState(false);
 
+    // status for edit
+    const [isEdit, setIsEdit] = React.useState(false);
+
+    // variables for drawing points
     const [constraints, setConstraints] = React.useState([]);
     const [constraintPoints, setConstraintPoints] = React.useState([]);
     const [eventPoints, setEventPoints] = React.useState([]);
@@ -1754,16 +1770,7 @@ function WorkStage() {
         }
     }
 
-    // toolbar button status
-
-    const [btnEditEnable, setBtnEditEnable] = React.useState(false);
-    const [btnZoomInEnable, setBtnZoomInEnable] = React.useState(false);
-    const [btnZoomOutEnable, setBtnZoomOutEnable] = React.useState(false);
-    const [btnHandEnable, setBtnHandEnable] = React.useState(false);
-    const [btnResetEnable, setBtnResetEnable] = React.useState(false);
-
-    const [btnEditActive, setBtnEditActive] = React.useState(false);
-    const [btnHandActive, setBtnHandActive] = React.useState(false);
+    
 
     const cbOpenBtnClick = function() {
         setClear(false)
@@ -1846,6 +1853,7 @@ function WorkStage() {
     }
     
 
+    // callback functions for menu items
     const menuClickOptimize = () => {
     
         setOptimized(true);
@@ -1941,6 +1949,23 @@ function WorkStage() {
         
     }
 
+    const menuClickHideConstraints = () => {
+        setHideConstraints(true);
+    }
+     
+    const menuClickShowConstraints = () => {
+        setHideConstraints(false);
+    }
+
+    const menuClickRemoveConstraints = () => {
+        if(constraints.length > 0) {
+            const newConstraints = constraints.slice();
+            newConstraints.splice(-1);
+
+            setConstraints(newConstraints);
+        }
+    }
+
     return (
         <Row>
             <Col sm="12" md="6" lg="6">
@@ -1990,17 +2015,14 @@ function WorkStage() {
                                         </DropdownItem>
 
 
-                                        <DropdownItem>
+                                        <DropdownItem onClick={() => menuClickHideConstraints()}>
                                             Hide Constraints
                                         </DropdownItem>
-                                        <DropdownItem>
+                                        <DropdownItem onClick={() => menuClickShowConstraints()}>
                                             Show Constraints
                                         </DropdownItem>
-                                        <DropdownItem>
+                                        <DropdownItem onClick={() => menuClickRemoveConstraints()}>
                                             Remove Constraints
-                                        </DropdownItem>
-                                        <DropdownItem>
-                                            Copy Constraints
                                         </DropdownItem>
                                     </DropdownMenu>
                                 </UncontrolledDropdown>
@@ -2027,7 +2049,7 @@ function WorkStage() {
                                     onDragEnd={(e) => stageDragEnd(e)}
                                 >
                                     { UploadSvg({ svgText: svgFile, visible: !optimized, clear: clear }) }
-                                    { DrawSvg({ constraints: constraints, constraintPoints: constraintPoints, eventPoints: eventPoints, visible: !optimized, clear: clear}) }
+                                    { DrawSvg({ constraints: constraints, constraintPoints: constraintPoints, eventPoints: eventPoints, visible: !optimized, clear: clear, hideConstraints: hideConstraints}) }
                                     { optimizeSVG({ constraints: constraints, visible: optimized, clear: clear}) }
                                 </div>
                             </div>
