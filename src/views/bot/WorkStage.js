@@ -873,7 +873,7 @@ const CASE_50_500 = '50-500';
 const CASE_500_2000 = '500-2000';
 const CASE_2000 = '2000-';
 
-function optimizeSVG({ constraints, visible, clear} ) {
+function optimizeSVG({ constraints, visible, clear, showOptimizedBlank} ) {
 console.log('svgUpload:', svgUpload);
     if(clear) {
         return (
@@ -1459,35 +1459,35 @@ console.log('svgUpload:', svgUpload);
             <svg xmlns={svgTagAttr.xmlns} viewBox={svgTagAttr.viewbox} id="svgOptimize">
                 <g transform="translate(0, 0)">
                 {
-                    constraints?.map((constraint, index) => {
+                    !showOptimizedBlank && constraints?.map((constraint, index) => {
                         return (
                             <polygon key={'constraint-polygon-' + index} className="polyline polyline_{index}" stroke="red" fill="red" points={constraint?.points?.toString()}></polygon>
                         )
                     })
                 }
                 {
-                    pathTryCircles?.map((circle, index) => {
+                    !showOptimizedBlank && pathTryCircles?.map((circle, index) => {
                         return (
                             <circle key={'try-path-circle-' + index} r={circle.r} fill={circle.fill} cx={circle.cx} cy={circle.cy}></circle>
                         )
                     })
                 }
                 {
-                    pathTryPolygons?.map((polygon, index) => {
+                    !showOptimizedBlank && pathTryPolygons?.map((polygon, index) => {
                         return (
                             <polygon key={'try-path-polygon-' + index} points={polygon.points} stroke={polygon.stroke} strokeWidth={polygon.stroke_width} fill={polygon.fill}></polygon>
                         )
                     })
                 }
                 {
-                    constraintCircles?.map((circle, index) => {
+                    !showOptimizedBlank && constraintCircles?.map((circle, index) => {
                         return (
                             <circle key={'contraint-circle-' + index} r={circle.r} fill={circle.fill} cx={circle.cx} cy={circle.cy}></circle>
                         )
                     })
                 }
                 {
-                    bestFitPolygons?.map((polygon, index) => {
+                    !showOptimizedBlank && bestFitPolygons?.map((polygon, index) => {
                         return (
                             <polygon key={'try-path-polygon-' + index} points={polygon.points} stroke={polygon.stroke} strokeWidth={polygon.stroke_width} fill={polygon.fill}></polygon>
                         )
@@ -1501,7 +1501,7 @@ console.log('svgUpload:', svgUpload);
                     })
                 }
                 {
-                    plotTrapezoidCornersTrimPolygons?.map((polygon, index) => {
+                    !showOptimizedBlank && plotTrapezoidCornersTrimPolygons?.map((polygon, index) => {
                         return (
                             <polygon key={'try-path-polygon-' + index} points={polygon.points} stroke={polygon.stroke} strokeWidth={polygon.stroke_width} fill={polygon.fill}></polygon>
                         )
@@ -1675,6 +1675,7 @@ function WorkStage() {
     const [optimized, setOptimized] = React.useState(false);
     const [clear, setClear] = React.useState(false);
     const [hideConstraints, setHideConstraints] = React.useState(false);
+    const [showOptimizedBlank, setShowOptimizedBlank] = React.useState(false);
 
     // status for edit
     const [isEdit, setIsEdit] = React.useState(false);
@@ -1949,6 +1950,14 @@ function WorkStage() {
         
     }
 
+    const menuClickShowOptimizedBlank = () => {
+        setShowOptimizedBlank(true);
+    }
+
+    const menuClickShowAll = () => {
+        setShowOptimizedBlank(false);
+    }
+
     const menuClickHideConstraints = () => {
         setHideConstraints(true);
     }
@@ -2007,10 +2016,10 @@ function WorkStage() {
                                         <DropdownItem>
                                             Print
                                         </DropdownItem>
-                                        <DropdownItem>
+                                        <DropdownItem onClick={() => menuClickShowOptimizedBlank()}>
                                             Show Optimized Blank
                                         </DropdownItem>
-                                        <DropdownItem>
+                                        <DropdownItem onClick={() => menuClickShowAll()}>
                                             Show All
                                         </DropdownItem>
 
@@ -2050,7 +2059,7 @@ function WorkStage() {
                                 >
                                     { UploadSvg({ svgText: svgFile, visible: !optimized, clear: clear }) }
                                     { DrawSvg({ constraints: constraints, constraintPoints: constraintPoints, eventPoints: eventPoints, visible: !optimized, clear: clear, hideConstraints: hideConstraints}) }
-                                    { optimizeSVG({ constraints: constraints, visible: optimized, clear: clear}) }
+                                    { optimizeSVG({ constraints: constraints, visible: optimized, clear: clear, showOptimizedBlank: showOptimizedBlank}) }
                                 </div>
                             </div>
                         </div>
