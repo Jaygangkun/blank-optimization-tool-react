@@ -14,6 +14,7 @@ const INIT_STATE = {
   activeDir: "ltr",
   activeThemeLayout: "vertical",
   activeTheme: "light",
+  // activeSidebarType: "mini-sidebar",
   activeSidebarType: "full",
   activeLogoBg: "skin6",
   activeNavbarBg: "skin6",

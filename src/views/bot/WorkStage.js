@@ -1,18 +1,50 @@
 import React from 'react'
 import HtmlToReact from 'html-to-react';
+import { useSelector, useDispatch } from "react-redux";
 import {
     Row,
     Col,
     Card,
     CardBody,
     CardTitle,
-    Nav,
-    UncontrolledDropdown,
-    DropdownToggle,
-    DropdownMenu,
-    DropdownItem,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Form,
+    FormGroup,
+    Input,
+    Label,
+    Button
 } from 'reactstrap';
 import * as d3 from 'd3';
+
+import {
+    BOT_LMENU_CLICK_OPTIMIZE,
+    BOT_LMENU_CLICK_CLEAR,
+    BOT_LMENU_CLICK_DOWNLOAD,
+    BOT_LMENU_CLICK_DOWNLOAD_JPEG,
+    BOT_LMENU_CLICK_PRINT,
+    BOT_LMENU_CLICK_SHOW_OPTIMIZED_BLANK,
+    BOT_LMENU_CLICK_SHOW_ALL,
+    BOT_LMENU_CLICK_HIDE_CONSTRAINTS,
+    BOT_LMENU_CLICK_SHOW_CONSTRAINTS,
+    BOT_LMENU_CLICK_REMOVE_CONSTRAINTS
+} from '../../redux/constants';
+
+import {
+    lmenuClickNone,
+    lmenuStateOptimize,
+    lmenuStateClear,
+    lmenuStateDownload,
+    lmenuStateDownloadJPEG,
+    lmenuStatePrint,
+    lmenuStateShowOptimizedBlank,
+    lmenuStateShowAll,
+    lmenuStateHideConstraints,
+    lmenuStateShowConstraints,
+    lmenuStateRemoveConstraints
+  } from "../../redux/bot/Action";
 
 // global functions
 // convert the array that contains polygon points into string format that can be used by SVG polygon 
@@ -873,8 +905,9 @@ const CASE_50_500 = '50-500';
 const CASE_500_2000 = '500-2000';
 const CASE_2000 = '2000-';
 
-function optimizeSVG({ constraints, visible, clear, showOptimizedBlank} ) {
-console.log('svgUpload:', svgUpload);
+function optimizeSVG({ optimizeParam, constraints, visible, clear, showOptimizedBlank} ) {
+    console.log('svgUpload:', svgUpload);
+
     if(clear) {
         return (
             <></>
@@ -891,9 +924,9 @@ console.log('svgUpload:', svgUpload);
 
     d3.select('#svgUpload');
 
-    let Mat_Uti_Improvement = 0.01;
-    let Mat_Uti_Points = 2500;
-    let Mat_Uti_Steps = 100;
+    let Mat_Uti_Improvement = optimizeParam.percentage / 100;
+    let Mat_Uti_Points = optimizeParam.points;
+    let Mat_Uti_Steps = optimizeParam.steps;
     
     let conditionCase = '';
     if ( svgTagAttr.viewbox.split(' ')[2] < 50 || svgTagAttr.viewbox.split(' ')[3] < 50 )
@@ -1638,6 +1671,9 @@ const panMove = (offset) => {
 
 
 function WorkStage() {
+    const botSetting = useSelector((state) => state.bot);
+    const dispatch = useDispatch();
+
     const fileSelector = document.createElement('input');
     fileSelector.setAttribute('type', 'file');
     fileSelector.setAttribute('accept', '.svg');
@@ -1654,7 +1690,7 @@ function WorkStage() {
             setBtnHandEnable(true);
             setBtnResetEnable(true);
 
-            setMenuItemDisabledClear(false);
+            dispatch(lmenuStateClear(true))
         }
     }
 
@@ -1673,17 +1709,6 @@ function WorkStage() {
     const [btnEditActive, setBtnEditActive] = React.useState(false);
     const [btnHandActive, setBtnHandActive] = React.useState(false);
 
-    // status for menu items
-    const [menuItemDisabledOptimize, setMenuItemDisabledOptimize] = React.useState(true);
-    const [menuItemDisabledClear, setMenuItemDisabledClear] = React.useState(true);
-    const [menuItemDisabledDownload, setMenuItemDisabledDownload] = React.useState(true);
-    const [menuItemDisabledDownloadJPEG, setMenuItemDisabledDownloadJPEG] = React.useState(true);
-    const [menuItemDisabledPrint, setMenuItemDisabledPrint] = React.useState(true);
-    const [menuItemDisabledShowOptimizedBlank, setMenuItemDisabledShowOptimizedBlank] = React.useState(true);
-    const [menuItemDisabledShowAll, setMenuItemDisabledShowAll] = React.useState(true);
-    const [menuItemDisabledHideConstraints, setMenuItemDisabledHideConstraints] = React.useState(true);
-    const [menuItemDisabledShowConstraints, setMenuItemDisabledShowConstraints] = React.useState(true);
-    const [menuItemDisabledRemoveConstraints, setMenuItemDisabledRemoveConstraints] = React.useState(true);
 
     // status for menu item clicks
 
@@ -1736,9 +1761,9 @@ function WorkStage() {
 
             setEventPoints([...eventPoints, {x: event.clientX - stageWrapContent.getBoundingClientRect().left, y: event.clientY - stageWrapContent.getBoundingClientRect().top}]);
 
-            setMenuItemDisabledOptimize(false);
-            setMenuItemDisabledHideConstraints(false);
-            setMenuItemDisabledRemoveConstraints(false);
+            dispatch(lmenuStateOptimize(true))
+            dispatch(lmenuStateHideConstraints(true))
+            dispatch(lmenuStateRemoveConstraints(true))
         }
     }
 
@@ -1877,9 +1902,9 @@ function WorkStage() {
     
         setOptimized(true);
         
-        setMenuItemDisabledDownload(false);
-        setMenuItemDisabledDownloadJPEG(false);
-        setMenuItemDisabledShowOptimizedBlank(false);
+        dispatch(lmenuStateDownload(true))
+        dispatch(lmenuStateDownloadJPEG(true))
+        dispatch(lmenuStateShowOptimizedBlank(true))
     }
 
     const menuClickClear = () => {
@@ -1904,18 +1929,16 @@ function WorkStage() {
         setConstraintPoints([]);
         setEventPoints([]);
 
-
-        // reset menu item status
-        setMenuItemDisabledOptimize(true)
-        setMenuItemDisabledClear(true)
-        setMenuItemDisabledDownload(true)
-        setMenuItemDisabledDownloadJPEG(true)
-        setMenuItemDisabledPrint(true)
-        setMenuItemDisabledShowOptimizedBlank(true)
-        setMenuItemDisabledShowAll(true)
-        setMenuItemDisabledHideConstraints(true)
-        setMenuItemDisabledShowConstraints(true)
-        setMenuItemDisabledRemoveConstraints(true)
+        dispatch(lmenuStateOptimize(false))
+        dispatch(lmenuStateClear(false))
+        dispatch(lmenuStateDownload(false))
+        dispatch(lmenuStateDownloadJPEG(false))
+        dispatch(lmenuStatePrint(false))
+        dispatch(lmenuStateShowOptimizedBlank(false))
+        dispatch(lmenuStateShowAll(false))
+        dispatch(lmenuStateHideConstraints(false))
+        dispatch(lmenuStateShowConstraints(false))
+        dispatch(lmenuStateRemoveConstraints(false))
 
     }
 
@@ -1989,38 +2012,39 @@ function WorkStage() {
     const menuClickShowOptimizedBlank = () => {
         setShowOptimizedBlank(true);
         
-        setMenuItemDisabledShowOptimizedBlank(true);
-        setMenuItemDisabledShowAll(false);
+        dispatch(lmenuStateShowOptimizedBlank(false))
+        dispatch(lmenuStateShowAll(true))
     }
 
     const menuClickShowAll = () => {
         setShowOptimizedBlank(false);
 
-        setMenuItemDisabledShowOptimizedBlank(false);
-        setMenuItemDisabledShowAll(true);
+        dispatch(lmenuStateShowOptimizedBlank(true))
+        dispatch(lmenuStateShowAll(false))
     }
 
     const menuClickHideConstraints = () => {
         setHideConstraints(true);
 
-        setMenuItemDisabledHideConstraints(true);
-        setMenuItemDisabledShowConstraints(false);
+        dispatch(lmenuStateHideConstraints(false))
+        dispatch(lmenuStateShowConstraints(true))
     }
      
     const menuClickShowConstraints = () => {
         setHideConstraints(false);
 
-        setMenuItemDisabledHideConstraints(false);
-        setMenuItemDisabledShowConstraints(true);
+        dispatch(lmenuStateHideConstraints(true))
+        dispatch(lmenuStateShowConstraints(false))
     }
 
     const menuClickRemoveConstraints = () => {
         if(constraints.length > 0) {
             if(constraints.length == 1 ){
-                setMenuItemDisabledOptimize(true);
-                setMenuItemDisabledRemoveConstraints(true);
-                setMenuItemDisabledHideConstraints(true);
-                setMenuItemDisabledShowConstraints(true);
+
+                dispatch(lmenuStateOptimize(false))
+                dispatch(lmenuStateRemoveConstraints(false))
+                dispatch(lmenuStateHideConstraints(false))
+                dispatch(lmenuStateShowConstraints(false))
             }
 
             const newConstraints = constraints.slice();
@@ -2030,9 +2054,78 @@ function WorkStage() {
         }
     }
 
+    const [modalOptimize, setModalOptimize] = React.useState(false);
+
+    const toggleModalOptimize = () => setModalOptimize(!modalOptimize);
+
+    React.useEffect(() => {
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_OPTIMIZE) {
+            // menuClickOptimize();
+            setModalOptimize(!modalOptimize);
+            dispatch(lmenuClickNone());
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_CLEAR) {
+            menuClickClear();
+            dispatch(lmenuClickNone())
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_DOWNLOAD) {
+            menuClickDownloadSVG();
+            dispatch(lmenuClickNone());
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_DOWNLOAD_JPEG) {
+            menuClickDownloadJPEG();
+            dispatch(lmenuClickNone());
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_PRINT) {
+            dispatch(lmenuClickNone());
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_SHOW_OPTIMIZED_BLANK) {
+            menuClickShowOptimizedBlank();
+            dispatch(lmenuClickNone());
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_SHOW_ALL) {
+            menuClickShowAll();
+            dispatch(lmenuClickNone());
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_HIDE_CONSTRAINTS) {
+            menuClickHideConstraints();
+            dispatch(lmenuClickNone());
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_SHOW_CONSTRAINTS) {
+            menuClickShowConstraints();
+            dispatch(lmenuClickNone());
+        }
+    
+        if(botSetting.lmenuClick === BOT_LMENU_CLICK_REMOVE_CONSTRAINTS) {
+            menuClickRemoveConstraints();
+            dispatch(lmenuClickNone());
+        }        
+    }, [botSetting]);
+
+    const [optimizeParamPercentage, setOptimizeParamPercentage] = React.useState(1);
+    const [optimizeParamPoints, setOptimizeParamPoints] = React.useState(2500);
+    const [optimizeParamSteps, setOptimizeParamSteps] = React.useState(100);
+
+    const optimizeFormSubmit = (e) => {
+        e.preventDefault();
+        setOptimizeParamPercentage(e.target.percentage.value);
+        setOptimizeParamPoints(e.target.points.value);
+        setOptimizeParamSteps(e.target.steps.value);
+        menuClickOptimize(); 
+        toggleModalOptimize()
+    }
+
     return (
         <Row>
-            <Col sm="12" md="6" lg="6">
+            <Col col="12">
                 <Card>
                     <CardTitle className="border-bottom p-3 mb-0">                        
                         <div className="d-flex align-items-center justify-content-between">
@@ -2044,54 +2137,7 @@ function WorkStage() {
                                 <WorkToolBarButton enable={btnZoomOutEnable} onClick={() => cbZoomOutBtnClick()}><i className="fas fa-search-minus"></i></WorkToolBarButton>
                                 <WorkToolBarButton enable={btnHandEnable} active={btnHandActive} onClick={() => cbHandBtnClick()}><i className="fas fa-hand-paper"></i></WorkToolBarButton>
                                 <WorkToolBarButton enable={btnResetEnable} onClick={() => cbResetBtnClick()}><i className="fas fa-undo"></i></WorkToolBarButton>
-                            </div>
-                            <Nav className="">
-                                <UncontrolledDropdown nav inNavbar>
-                                    <DropdownToggle
-                                        nav
-                                        className="pro-pic d-flex align-items-center"
-                                    >
-                                        <i className="icon-options-vertical"></i>
-                                    </DropdownToggle>
-                                    <DropdownMenu right className="user-dd">
-                                        <DropdownItem onClick={() => menuClickOptimize()} disabled={menuItemDisabledOptimize}>
-                                            Optimize
-                                        </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickClear()} disabled={menuItemDisabledClear}>
-                                            Clear
-                                        </DropdownItem>
-
-
-                                        <DropdownItem onClick={() => menuClickDownloadSVG()} disabled={menuItemDisabledDownload}>
-                                            Download
-                                        </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickDownloadJPEG()} disabled={menuItemDisabledDownloadJPEG}>
-                                            Download JPEG
-                                        </DropdownItem>
-                                        <DropdownItem disabled={menuItemDisabledPrint}>
-                                            Print
-                                        </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickShowOptimizedBlank()} disabled={menuItemDisabledShowOptimizedBlank}>
-                                            Show Optimized Blank
-                                        </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickShowAll()} disabled={menuItemDisabledShowAll}>
-                                            Show All
-                                        </DropdownItem>
-
-
-                                        <DropdownItem onClick={() => menuClickHideConstraints()} disabled={menuItemDisabledHideConstraints}>
-                                            Hide Constraints
-                                        </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickShowConstraints()} disabled={menuItemDisabledShowConstraints}>
-                                            Show Constraints
-                                        </DropdownItem>
-                                        <DropdownItem onClick={() => menuClickRemoveConstraints()} disabled={menuItemDisabledRemoveConstraints}>
-                                            Remove Constraints
-                                        </DropdownItem>
-                                    </DropdownMenu>
-                                </UncontrolledDropdown>
-                            </Nav>
-                            
+                            </div>                            
                         </div>
                     </CardTitle>
                     <CardBody>
@@ -2114,13 +2160,46 @@ function WorkStage() {
                                 >
                                     { UploadSvg({ svgText: svgFile, visible: !optimized, clear: clear }) }
                                     { DrawSvg({ constraints: constraints, constraintPoints: constraintPoints, eventPoints: eventPoints, visible: !optimized, clear: clear, hideConstraints: hideConstraints}) }
-                                    { optimizeSVG({ constraints: constraints, visible: optimized, clear: clear, showOptimizedBlank: showOptimizedBlank}) }
+
+                                    { optimizeSVG({ 
+                                        optimizeParam: {
+                                            percentage: optimizeParamPercentage,
+                                            points: optimizeParamPoints,
+                                            steps: optimizeParamSteps,
+                                        }, 
+                                        constraints: constraints, 
+                                        visible: optimized, 
+                                        clear: clear, 
+                                        showOptimizedBlank: showOptimizedBlank}) }
                                 </div>
                             </div>
                         </div>
                     </CardBody>
                 </Card>
             </Col>
+            <Modal isOpen={modalOptimize} toggle={toggleModalOptimize}>
+                <Form onSubmit={optimizeFormSubmit}>
+                    <ModalHeader toggle={toggleModalOptimize}>Parameters</ModalHeader>
+                    <ModalBody>
+                        <FormGroup>
+                            <Label>IMPROVEMENT PERCENTAGE %</Label>
+                            <Input type="text" name="percentage" defaultValue={optimizeParamPercentage} />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>NUMBER OF POINTS</Label>
+                            <Input type="text" name="points" defaultValue={optimizeParamPoints} />
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>INCREMENTAL STEPS</Label>
+                            <Input type="text" name="steps" defaultValue={optimizeParamSteps} />
+                        </FormGroup>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button type="submit" color="enable">Optimize</Button>{' '}
+                        <Button color="secondary" onClick={toggleModalOptimize}>Cancel</Button>
+                    </ModalFooter>
+                </Form>
+            </Modal>
         </Row>
     )
 }

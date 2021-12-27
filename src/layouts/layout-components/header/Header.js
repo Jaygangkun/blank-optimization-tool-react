@@ -140,37 +140,6 @@ const Header = () => {
                 </span>
               </DropdownToggle>
               <DropdownMenu right className="user-dd">
-                <div className="d-flex no-block align-items-start border-bottom p-3 mb-2">
-                  <div className="">
-                    <img
-                      src={profilephoto}
-                      alt="user"
-                      className="rounded"
-                      width="80"
-                    />
-                  </div>
-                  <div className="ml-2">
-                    <h4 className="mb-0">Steave Jobs</h4>
-                    <p className="text-muted mb-0">varun@gmail.com</p>
-                    <Button color="danger" className="btn-rounded btn-sm mt-2">
-                      View Profile
-                    </Button>
-                  </div>
-                </div>
-                <DropdownItem>
-                  <i className="ti-user mr-1 ml-1" /> My Account
-                </DropdownItem>
-                <DropdownItem>
-                  <i className="ti-wallet mr-1 ml-1" /> My Balance
-                </DropdownItem>
-                <DropdownItem>
-                  <i className="ti-email mr-1 ml-1" /> Inbox
-                </DropdownItem>
-                <DropdownItem divider />
-                <DropdownItem>
-                  <i className="ti-settings mr-1 ml-1" /> Account Settings
-                </DropdownItem>
-                <DropdownItem divider />
                 <DropdownItem href="/pages/login">
                   <i className="fa fa-power-off mr-1 ml-1" /> Logout
                 </DropdownItem>

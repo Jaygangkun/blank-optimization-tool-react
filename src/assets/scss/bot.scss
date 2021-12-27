@@ -101,3 +101,11 @@
 .OptimizeInfoValue {
     font-weight: bold;
 }
+
+.sidebar-nav ul .sidebar-item .sidebar-link {
+    opacity: 1;
+}
+
+.sidebar-nav ul .sidebar-item.disabled .sidebar-link {
+    opacity: 0.6;
+}
